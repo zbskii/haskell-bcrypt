@@ -1,4 +1,4 @@
-{-# LANGUAGE ForeignFunctionInterface, EmptyDataDecls #-}
+{-# LANGUAGE ForeignFunctionInterface #-}
 
 -- Copyright 2011 Brett Carter brett@rdnzl.net
 -- All rights reserved.
@@ -29,7 +29,8 @@
 -- THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 -- This is a thin haskell wrapper implementing bcrypt using the blowfish
--- implementation from OpenBSD's libc
+-- implementation from OpenBSD's libc, heavily lifted from Coda Hale's ruby
+-- version.
 
 module BCrypt
     ( bcrypt

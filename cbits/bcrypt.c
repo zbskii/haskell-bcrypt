@@ -1,6 +1,6 @@
 /*	$OpenBSD: bcrypt.c,v 1.22 2007/02/20 01:44:16 ray Exp $	*/
 
-/* 
+/*
  * Modified by <coda.hale@gmail.com> on 2009-09-16:
  *
  *   - Standardized on stdint.h's numerical types and removed some debug cruft.
@@ -14,7 +14,7 @@
  *
  *   - Changed bcrypt_gensalt to accept a random seed as a parameter,
  *     to remove the code's dependency on arc4random(), which isn't
- *     available on Linux. 
+ *     available on Linux.
  */
 
 /*
