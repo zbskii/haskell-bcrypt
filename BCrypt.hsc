@@ -45,28 +45,31 @@ where
 import Foreign
 import Foreign.C.Types
 import Foreign.C.String
+import qualified System.IO.Unsafe ( unsafePerformIO )
 import qualified Data.ByteString.Unsafe as B
 import qualified Data.ByteString.Internal as B ( fromForeignPtr
                                                , c_strlen
                                                )
 import qualified Data.ByteString as B
 
--- Seed should be a 16 character bytestring from a secure rando
-genSalt :: Integer -> B.ByteString -> IO B.ByteString
-genSalt cost seed = do
-        out <- mallocBytes 30 -- BCRYPT_SALT_OUTPUT_SIZE
+-- Seed should be a 16 character bytestring from a secure random generator
+genSalt :: Integer -> B.ByteString -> Maybe B.ByteString
+genSalt cost seed
+       | (B.length seed) /= 16 = Nothing
+       | otherwise = unsafePerformIO $
         B.useAsCString seed $ \s -> do
-             salty <- c_bcrypt_gensalt out (fromIntegral cost::CInt) (castPtr s)
-             B.packCString salty
+             out <- mallocBytes 30 -- BCRYPT_SALT_OUTPUT_SIZE
+             result <- B.packCString $ c_bcrypt_gensalt out (fromIntegral cost::CInt) (castPtr s)
+             return $ Just result
 
-bcrypt :: B.ByteString -> B.ByteString -> IO B.ByteString
-bcrypt key salt = do
-       out <- mallocBytes 128 -- BCRYPT_MAX_OUTPUT_SIZE
+bcrypt :: B.ByteString -> B.ByteString -> B.ByteString
+bcrypt key salt = unsafePerformIO $
        B.useAsCString key $ \k -> B.useAsCString salt $ \s -> do
+           out <- mallocBytes 128 -- BCRYPT_MAX_OUTPUT_SIZE
            B.packCString $ c_bcrypt out k s
 
 foreign import ccall unsafe "bcrypt.h bcrypt_gensalt"
-    c_bcrypt_gensalt :: CString -> CInt -> Ptr CUInt -> IO CString
+    c_bcrypt_gensalt :: CString -> CInt -> Ptr CUInt -> CString
 
 foreign import ccall unsafe "bcrypt.h bcrypt"
     c_bcrypt :: CString -> CString -> CString -> CString
