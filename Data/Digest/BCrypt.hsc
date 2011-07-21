@@ -3,6 +3,7 @@
 module Data.Digest.BCrypt
     ( bcrypt
     , genSalt
+    , BSalt
     )
 where
 
@@ -22,18 +23,18 @@ import qualified Data.ByteString as B
 
 newtype BSalt = BSalt B.ByteString deriving (Show)
 
--- |Given a cost from 4-32 and a random seed of 16 bytes generate a salt. 
+-- |Given a cost from 4-32 and a random seed of 16 bytes generate a salt.
 -- Seed should be 16 bytes from a secure random generator
-genSalt :: Integer -> B.ByteString -> Maybe BSalt
+genSalt :: Monad m => Integer -> B.ByteString -> m BSalt
 genSalt cost seed
-       | B.length seed /= 16 = Nothing
-       | otherwise = unsafePerformIO $
+       | B.length seed /= 16 = fail "Bad seed size"
+       | otherwise = return $ unsafePerformIO $
         B.useAsCString seed $ \s -> do
              out <- mallocBytes 30 -- BCRYPT_SALT_OUTPUT_SIZE
              let seed' = (fromIntegral cost::CInt)
                  bsalt = c_bcrypt_gensalt out seed' (castPtr s)
              result <- B.packCString bsalt
-             return $ Just $ BSalt result
+             return $ BSalt result
 
 -- |Hash a password based on a BSalt with a given cost
 bcrypt :: B.ByteString -> BSalt -> B.ByteString

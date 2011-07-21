@@ -1,6 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Main where
 import Data.Digest.BCrypt
+import Control.Monad.Error
 import OpenSSL.Random
 import Data.ByteString ( unpack )
 import qualified Data.ByteString.Char8 as B
@@ -20,6 +21,7 @@ main = do
     B.putStrLn hashedBad
     return ()
 
+maybeHash :: B.ByteString -> Either String BSalt -> B.ByteString
 maybeHash val salt = case salt of
-                         Just salt' -> bcrypt val salt'
-                         Nothing -> "Bad Seed." :: B.ByteString
+                         Right salt' -> bcrypt val salt'
+                         Left er -> error er
