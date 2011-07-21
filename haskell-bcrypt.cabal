@@ -14,7 +14,7 @@ Description:
   Wraps around the OpenBSD blowfish implementation to implement bcrypt
 
 Library
-  Exposed-modules:     BCrypt
+  Exposed-modules:     Data.Digest.BCrypt
   Build-depends:       base == 4.*, bytestring == 0.9.*
   Build-tools:         hsc2hs
   include-dirs:        include
