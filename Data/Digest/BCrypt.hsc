@@ -29,19 +29,19 @@ genSalt :: Monad m => Integer -> B.ByteString -> m BSalt
 genSalt cost seed
        | B.length seed /= 16 = fail "Bad seed size"
        | otherwise = return $ unsafePerformIO $
-        B.useAsCString seed $ \s -> do
-             out <- mallocBytes 30 -- BCRYPT_SALT_OUTPUT_SIZE
-             let seed' = (fromIntegral cost::CInt)
-                 bsalt = c_bcrypt_gensalt out seed' (castPtr s)
-             result <- B.packCString bsalt
-             return $ BSalt result
+        B.useAsCString seed $ \s ->
+             allocaBytes #{const BCRYPT_SALT_OUTPUT_SIZE} $ \out -> do
+                 let seed' = (fromIntegral cost::CInt)
+                     bsalt = c_bcrypt_gensalt out seed' (castPtr s)
+                 result <- B.packCString bsalt
+                 return $ BSalt result
 
 -- |Hash a password based on a BSalt with a given cost
 bcrypt :: B.ByteString -> BSalt -> B.ByteString
 bcrypt key (BSalt salt) = unsafePerformIO $
-       B.useAsCString key $ \k -> B.useAsCString salt $ \s -> do
-           out <- mallocBytes 128 -- BCRYPT_MAX_OUTPUT_SIZE
-           B.packCString $ c_bcrypt out k s
+       B.useAsCString key $ \k -> B.useAsCString salt $ \s ->
+           allocaBytes #{const BCRYPT_OUTPUT_SIZE} $ \out -> do
+               B.packCString $ c_bcrypt out k s
 
 foreign import ccall unsafe "bcrypt.h bcrypt_gensalt"
     c_bcrypt_gensalt :: CString -> CInt -> Ptr CUInt -> CString

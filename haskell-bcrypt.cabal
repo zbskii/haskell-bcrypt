@@ -12,7 +12,10 @@ Build-type:          Simple
 Cabal-version:       >=1.6
 Extra-source-files:  include/blf.h, include/bcrypt.h, examples/Main.hs
 Description:
-  Wraps around the OpenBSD blowfish implementation to implement bcrypt
+  Wraps around the OpenBSD blowfish implementation to implement bcrypt.
+  .
+  A slightly modified (for build purposes) bcrypt c library is included.
+  .
   See <http://www.usenix.org/events/usenix99/provos.html>
 
 Library
