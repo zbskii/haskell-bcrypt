@@ -20,8 +20,11 @@ import qualified Data.ByteString.Internal as B ( fromForeignPtr
                                                )
 import qualified Data.ByteString as B
 
--- Seed should be a 16 character bytestring from a secure random generator
-genSalt :: Integer -> B.ByteString -> Maybe B.ByteString
+newtype BSalt = BSalt B.ByteString deriving (Show)
+
+-- |Given a cost from 4-32 and a random seed of 16 bytes generate a salt. 
+-- Seed should be 16 bytes from a secure random generator
+genSalt :: Integer -> B.ByteString -> Maybe BSalt
 genSalt cost seed
        | B.length seed /= 16 = Nothing
        | otherwise = unsafePerformIO $
@@ -30,10 +33,11 @@ genSalt cost seed
              let seed' = (fromIntegral cost::CInt)
                  bsalt = c_bcrypt_gensalt out seed' (castPtr s)
              result <- B.packCString bsalt
-             return $ Just result
+             return $ Just $ BSalt result
 
-bcrypt :: B.ByteString -> B.ByteString -> B.ByteString
-bcrypt key salt = unsafePerformIO $
+-- |Hash a password based on a BSalt with a given cost
+bcrypt :: B.ByteString -> BSalt -> B.ByteString
+bcrypt key (BSalt salt) = unsafePerformIO $
        B.useAsCString key $ \k -> B.useAsCString salt $ \s -> do
            out <- mallocBytes 128 -- BCRYPT_MAX_OUTPUT_SIZE
            B.packCString $ c_bcrypt out k s
