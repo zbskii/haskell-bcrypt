@@ -55,11 +55,13 @@ import qualified Data.ByteString as B
 -- Seed should be a 16 character bytestring from a secure random generator
 genSalt :: Integer -> B.ByteString -> Maybe B.ByteString
 genSalt cost seed
-       | (B.length seed) /= 16 = Nothing
+       | B.length seed /= 16 = Nothing
        | otherwise = unsafePerformIO $
         B.useAsCString seed $ \s -> do
              out <- mallocBytes 30 -- BCRYPT_SALT_OUTPUT_SIZE
-             result <- B.packCString $ c_bcrypt_gensalt out (fromIntegral cost::CInt) (castPtr s)
+             let seed' = (fromIntegral cost::CInt)
+                 bsalt = c_bcrypt_gensalt out seed' (castPtr s)
+             result <- B.packCString bsalt
              return $ Just result
 
 bcrypt :: B.ByteString -> B.ByteString -> B.ByteString

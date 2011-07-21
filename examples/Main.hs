@@ -14,9 +14,9 @@ main = do
         badSalt = genSalt 10 badSeed
         hashed = maybeHash "foobar" salt
         hashedBad = maybeHash "foobar" badSalt
-    putStrLn $ show salt
+    print salt
     B.putStrLn hashed
-    putStrLn $ show badSalt
+    print badSalt
     B.putStrLn hashedBad
     return ()
 
@@ -24,4 +24,4 @@ main = do
 maybeHash :: B.ByteString -> Maybe B.ByteString -> B.ByteString
 maybeHash val salt = case salt of
                          Just salt' -> bcrypt val salt'
-                         Nothing -> ("Bad Seed." :: B.ByteString)
+                         Nothing -> "Bad Seed." :: B.ByteString
