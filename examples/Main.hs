@@ -21,6 +21,16 @@ example = do
     print badSalt
     B.putStrLn hashedBad
 
+testCompare :: IO ()
+testCompare = do
+  seed <- randBytes 16
+  salt <- genSalt 10 seed
+  let hashed = bcrypt "foobar" salt
+  print hashed
+  print $ bcrypt "foobar" $ BSalt hashed
+  print $ bcrypt "foobar" $ BSalt "bah"
+  return ()
+
 main :: IO ()
 main =
      forM_ [1..100000] $ \n -> do
