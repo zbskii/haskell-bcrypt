@@ -3,7 +3,8 @@
 module Data.Digest.BCrypt
     ( bcrypt
     , genSalt
-    , BSalt (..)
+    , packBSalt
+    , BSalt
     )
 where
 
@@ -16,16 +17,33 @@ import Foreign.C.Types
 import Foreign.C.String
 import qualified Foreign.Ptr ( nullPtr )
 import qualified System.IO.Unsafe ( unsafePerformIO )
+import Data.ByteString.Char8 (split)
 import qualified Data.ByteString.Unsafe as B
 import qualified Data.ByteString.Internal as B ( fromForeignPtr
                                                , c_strlen
                                                )
 import qualified Data.ByteString as B
 
+
 -- | BCrypt salt for passing to bcrypt.
 newtype BSalt = BSalt { -- | Deconstruct a BSalt to a bytestring
                         unBSalt::B.ByteString
                       } deriving (Eq, Ord, Show)
+
+packBSalt :: Monad m =>
+            B.ByteString ->
+            m BSalt
+packBSalt s = do
+    let unpacked = split '$' s in
+        case unpacked of
+          _:version:rounds:hashed:xs ->
+            let vlen = B.length version
+                rlen = B.length rounds
+                hlen = B.length hashed in
+            if all id $ (vlen >= 2) : (rlen >= 1) : [hlen == 53]
+            then return $ BSalt s
+            else fail "Invalid salt"
+          _ -> fail "Invalid salt"
 
 -- | Given a cost from 4-32 and a random seed of 16 bytes generate a salt.
 -- Seed should be 16 bytes from a secure random generator

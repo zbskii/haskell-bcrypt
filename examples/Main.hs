@@ -26,9 +26,14 @@ testCompare = do
   seed <- randBytes 16
   salt <- genSalt 10 seed
   let hashed = bcrypt "foobar" salt
-  print hashed
-  print $ bcrypt "foobar" $ BSalt hashed
-  print $ bcrypt "foobar" $ BSalt "bah"
+  print  hashed
+  putStrLn "packing hashed..."
+  packed <- packBSalt hashed
+  print packed
+  print $ bcrypt "foobar" packed
+  badpack <- packBSalt "bah"
+  print badpack
+  putStrLn "Done."
   return ()
 
 main :: IO ()
