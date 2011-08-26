@@ -21,6 +21,21 @@ example = do
     print badSalt
     B.putStrLn hashedBad
 
+testCompare :: IO ()
+testCompare = do
+  seed <- randBytes 16
+  let hashed = maybeHash "foobar" salt
+      salt = genSalt 10 seed
+  print  hashed
+  putStrLn "packing hashed..."
+  let packed = packBSalt hashed
+  print packed
+  print $ maybeHash "foobar" packed
+  let badpack = packBSalt "bah"
+  print badpack
+  putStrLn "Done."
+  return ()
+
 leaktest :: IO ()
 leaktest =
      forM_ [1..100000] $ \n -> do
@@ -28,8 +43,7 @@ leaktest =
                 print $ leakTest' n seed
 
 main :: IO ()
-main = example >> leaktest
-
+main = example >> testCompare >> leaktest
 
 leakTest' :: Int -> B.ByteString -> B.ByteString
 leakTest' n seed = do

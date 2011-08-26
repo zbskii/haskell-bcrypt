@@ -27,6 +27,20 @@ newtype BSalt = BSalt { -- | Deconstruct a BSalt to a bytestring
                         unBSalt::B.ByteString
                       } deriving (Eq, Ord, Show)
 
+packBSalt :: B.ByteString
+             -> Maybe BSalt
+packBSalt s = do
+    let unpacked = split '$' s in
+        case unpacked of
+          _:version:rounds:hashed:xs ->
+            let vlen = B.length version
+                rlen = B.length rounds
+                hlen = B.length hashed in
+            if all id $ (vlen >= 2) : (rlen >= 1) : [hlen == 53]
+            then Just $ BSalt s
+            else Nothing
+          _ -> Nothing
+
 -- | Given a cost from 4-32 and a random seed of 16 bytes generate a salt.
 -- Seed should be 16 bytes from a secure random generator
 genSalt :: Integer         -- ^ Compute cost
