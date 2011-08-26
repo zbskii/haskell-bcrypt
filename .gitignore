@@ -1,1 +1,4 @@
 dist
+examples/Main
+examples/Main.hi
+examples/Main.o

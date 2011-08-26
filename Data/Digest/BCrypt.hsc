@@ -29,19 +29,18 @@ newtype BSalt = BSalt { -- | Deconstruct a BSalt to a bytestring
 
 -- | Given a cost from 4-32 and a random seed of 16 bytes generate a salt.
 -- Seed should be 16 bytes from a secure random generator
-genSalt :: Monad m =>
-           Integer         -- ^ Compute cost
+genSalt :: Integer         -- ^ Compute cost
            -> B.ByteString -- ^ 16 byte secure random seed
-           -> m BSalt        -- ^ Monadic for controlling any error conditions
+           -> Maybe BSalt  -- ^ Returned salt or Nothing
 genSalt cost seed
-       | B.length seed /= 16 = fail "Bad seed size"
-       | otherwise = return $ unsafePerformIO $
+       | B.length seed /= 16 = Nothing
+       | otherwise = unsafePerformIO $
         B.useAsCString seed $ \s ->
              allocaBytes #{const BCRYPT_SALT_OUTPUT_SIZE} $ \out -> do
                  let seed' = (fromIntegral cost::CInt)
                  bsalt <- c_bcrypt_gensalt out seed' (castPtr s)
                  result <- B.packCString bsalt
-                 return $ BSalt result
+                 return $ Just $ BSalt result
 
 -- | Hash a password based on a BSalt with a given cost
 bcrypt :: B.ByteString -- ^ Data to hash

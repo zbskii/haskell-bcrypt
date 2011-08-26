@@ -21,17 +21,21 @@ example = do
     print badSalt
     B.putStrLn hashedBad
 
-main :: IO ()
-main =
+leaktest :: IO ()
+leaktest =
      forM_ [1..100000] $ \n -> do
                 seed <- randBytes 16
                 print $ leakTest' n seed
+
+main :: IO ()
+main = example >> leaktest
+
 
 leakTest' :: Int -> B.ByteString -> B.ByteString
 leakTest' n seed = do
     maybeHash (pack $ show n) $ genSalt 4 seed
 
-maybeHash :: B.ByteString -> Either String BSalt -> B.ByteString
+maybeHash :: B.ByteString -> Maybe BSalt -> B.ByteString
 maybeHash val salt = case salt of
-                         Right salt' -> bcrypt val salt'
-                         Left er -> error er
+                         Just salt' -> bcrypt val salt'
+                         _ -> ""
