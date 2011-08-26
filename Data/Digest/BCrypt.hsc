@@ -3,8 +3,8 @@
 module Data.Digest.BCrypt
     ( bcrypt
     , genSalt
+    , packBSalt
     , BSalt
-    , unBSalt
     )
 where
 
@@ -15,20 +15,24 @@ where
 import Foreign
 import Foreign.C.Types
 import Foreign.C.String
+import qualified Foreign.Ptr ( nullPtr )
 import qualified System.IO.Unsafe ( unsafePerformIO )
+import Data.ByteString.Char8 (split)
 import qualified Data.ByteString.Unsafe as B
 import qualified Data.ByteString.Internal as B ( fromForeignPtr
                                                , c_strlen
                                                )
 import qualified Data.ByteString as B
 
+
 -- | BCrypt salt for passing to bcrypt.
 newtype BSalt = BSalt { -- | Deconstruct a BSalt to a bytestring
                         unBSalt::B.ByteString
                       } deriving (Eq, Ord, Show)
 
-packBSalt :: B.ByteString
-             -> Maybe BSalt
+-- | Given a bytestring, construct a BSalt type, with some minimal checking
+packBSalt :: B.ByteString   -- ^ Bytestring version of a BSalt
+             -> Maybe BSalt -- ^ BSalt if the salt string validated
 packBSalt s = do
     let unpacked = split '$' s in
         case unpacked of
@@ -62,8 +66,11 @@ bcrypt :: B.ByteString -- ^ Data to hash
           -> B.ByteString
 bcrypt key (BSalt salt) = unsafePerformIO $
        B.useAsCString key $ \k -> B.useAsCString salt $ \s ->
-           allocaBytes #{const BCRYPT_OUTPUT_SIZE} $ \out ->
-               B.packCString =<< c_bcrypt out k s
+           allocaBytes #{const BCRYPT_OUTPUT_SIZE} $ \out -> do
+               cptr <- c_bcrypt out k s
+               if cptr == nullPtr -- On error, returns NULL
+                 then return B.empty
+                 else B.packCString cptr
 
 foreign import ccall unsafe "bcrypt.h bcrypt_gensalt"
     c_bcrypt_gensalt :: CString -> CInt -> Ptr Word8 -> IO CString
