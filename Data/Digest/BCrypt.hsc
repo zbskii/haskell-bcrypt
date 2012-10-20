@@ -40,7 +40,7 @@ packBSalt s = do
             let vlen = B.length version
                 rlen = B.length rounds
                 hlen = B.length hashed in
-            if all id $ (vlen >= 2) : (rlen >= 1) : [hlen == 53]
+            if and $ (vlen >= 2) : (rlen >= 1) : [hlen == 53]
             then Just $ BSalt s
             else Nothing
           _ -> Nothing

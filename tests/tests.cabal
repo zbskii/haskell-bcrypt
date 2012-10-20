@@ -1,0 +1,24 @@
+Name:                tests
+Version:             0.1
+License:             MIT
+Category:            Testing
+Build-type:          Simple
+Cabal-version:       >=1.6
+
+Executable test
+  Main-is:
+    Tests.hs
+
+  hs-source-dirs: ../, ../Data/Digest, .
+  Build-tools:         hsc2hs
+  include-dirs:        ../include
+  c-sources:           ../cbits/blowfish.c, ../cbits/bcrypt.c
+  other-modules:       Data.Digest.BCrypt
+
+  Build-depends:
+    QuickCheck,
+    HsOpenSSL == 0.10.*,
+    bytestring == 0.9.*,
+    random,
+    base >= 4 && < 5
+

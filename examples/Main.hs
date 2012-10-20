@@ -47,7 +47,7 @@ main = example >> testCompare >> leaktest
 
 leakTest' :: Int -> B.ByteString -> B.ByteString
 leakTest' n seed = do
-    maybeHash (pack $ show n) $ genSalt 4 seed
+    maybeHash (pack $ show n) $ genSalt 12 seed
 
 maybeHash :: B.ByteString -> Maybe BSalt -> B.ByteString
 maybeHash val salt = case salt of
