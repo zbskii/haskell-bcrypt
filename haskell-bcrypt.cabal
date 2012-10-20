@@ -1,5 +1,5 @@
 Name:                haskell-bcrypt
-Version:             0.2
+Version:             0.3
 Synopsis:            A bcrypt implementation for haskell
 License:             MIT
 License-file:        LICENSE
@@ -24,3 +24,7 @@ Library
   Build-tools:         hsc2hs
   include-dirs:        include
   c-sources:           cbits/blowfish.c, cbits/bcrypt.c
+
+source-repository head
+  type:     git
+  location: http://www.github.com/zbskii/haskell-bcrypt
