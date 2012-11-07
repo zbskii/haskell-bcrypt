@@ -17,7 +17,6 @@ Executable test
 
   Build-depends:
     QuickCheck,
-    HsOpenSSL == 0.10.*,
     bytestring == 0.9.*,
     random,
     base >= 4 && < 5

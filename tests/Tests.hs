@@ -6,7 +6,6 @@ import Control.Applicative
 import Test.QuickCheck
 import Test.QuickCheck.Gen
 import Data.Digest.BCrypt
-import OpenSSL.Random
 import System.Random
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Char8 as B8
