@@ -1,5 +1,5 @@
 Name:                haskell-bcrypt
-Version:             0.3
+Version:             0.4
 Synopsis:            A bcrypt implementation for haskell
 License:             MIT
 License-file:        LICENSE
