@@ -1,5 +1,6 @@
 language: haskell
 ghc: 7.10
 install: true
+script: true
 notifications:
   email: true
