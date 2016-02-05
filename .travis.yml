@@ -1,0 +1,5 @@
+language: haskell
+ghc: 7.10
+install: true
+notifications:
+  email: true
