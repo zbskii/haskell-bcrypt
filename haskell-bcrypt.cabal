@@ -28,3 +28,19 @@ Library
 source-repository head
   type:     git
   location: http://www.github.com/zbskii/haskell-bcrypt
+
+Test-Suite test-haskell-bcrypt
+    type:       exitcode-stdio-1.0
+    main-is:    tests/Tests.hs
+
+    hs-source-dirs: Data/Digest, .
+    Build-tools:         hsc2hs
+    include-dirs:        include
+    c-sources:           cbits/blowfish.c, cbits/bcrypt.c
+    other-modules:       Data.Digest.BCrypt
+
+  Build-depends:
+    QuickCheck,
+    bytestring == 0.10.*,
+    random,
+    base >= 4 && < 5

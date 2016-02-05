@@ -2,16 +2,20 @@
 module Main (main) where
 
 import Control.Monad
-import Control.Applicative
 import Test.QuickCheck
 import Test.QuickCheck.Gen
 import Data.Digest.BCrypt
 import System.Random
+import System.Exit
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Char8 as B8
 
 main :: IO ()
-main = quickCheck bcryptCheck
+main = do
+  res <- quickCheckResult bcryptCheck
+  case res of
+         Success{} -> exitSuccess
+         _ -> exitFailure
 
 
 bcryptCheck :: B.ByteString -> BSalt -> Bool
@@ -24,6 +28,7 @@ bcryptCheck plain salt = encrypted == encrypted'
         encrypted' = case packBSalt $ bcrypt plain encrypted of
             Just s' -> s'
             _ -> error "Impossible packing of salt #2"
+
 
 
 instance Arbitrary B.ByteString where
